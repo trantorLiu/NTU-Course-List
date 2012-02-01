@@ -9,11 +9,27 @@
 	<style type="text/css">
 		body {
 			font-family: "Microsoft JhengHei","微軟正黑體";
+			width: 740px;
+			padding: 0px;
+			margin: 0px;
 		}
 		a {
      	 	 text-decoration: none;
 		}
 			
+		#titleTd {
+			-moz-border-bottom-colors: none;
+			-moz-border-image: none;
+			-moz-border-left-colors: none;
+			-moz-border-right-colors: none;
+			-moz-border-top-colors: none;
+			background-color: #F5F5F5;
+			border-color: #ECCEF5 #F2E0F7 #F2E0F7 #ECCEF5;
+			border-right: 1px solid #DEDEDE;
+			border-style: solid;
+			border-width: 1px;
+			margin-bottom: 10px;
+		}
 		#title {
 			font-size: 32px;
 			font-weight: bold;
@@ -23,7 +39,8 @@
 		}
 		#menu ul {
      	 	list-style: none outside none;
-     	 	padding: 0pt;
+			padding: 0pt;
+			width: 732px;
 		}
 		#menu li {
      	 	display: inline;
@@ -34,7 +51,7 @@
 		}
 		table.main {
      	 	text-align: center;
-     	 	width: 760px;
+     	 	width: 732px;
 		}
 		table.main table {
      	 	margin-left: auto;
@@ -299,6 +316,9 @@
 			if (getURLParameter('page') == 'view' && (viewId = getURLParameter('id')) !== 'null') {
 				showList(viewId);
 			}
+			else if (getURLParameter('page') == 'view') {
+				$('hr').hide();
+			}
 
 
 		});
@@ -487,6 +507,7 @@
 				},
 				success: function(msg) {
 					$("#loaderIcon").hide();
+					$('hr').show();
 
 					$('#listTable').append(msg);
 
@@ -596,6 +617,9 @@
 			</div>
 			<p id="message"></p>
 		</td>
+	</tr>
+	<tr>
+		<td><br /></td>
 	</tr>
 
 	<?php include_once($page . '.php'); ?>
