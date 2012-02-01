@@ -24,10 +24,11 @@
 			-moz-border-right-colors: none;
 			-moz-border-top-colors: none;
 			background-color: #F5F5F5;
-			border-color: #ECCEF5 #F2E0F7 #F2E0F7 #ECCEF5;
-			border-right: 1px solid #DEDEDE;
-			border-style: solid;
+			border-color: #E2A9F3 #ECCEF5 #ECCEF5 #E2A9F3;
+			border-right: 1px solid #E2A9F3;
+			border-bottom: 1px solid #ECCEF5;
 			border-width: 1px;
+			border-style: solid;
 			margin-bottom: 10px;
 		}
 		#title {
@@ -318,6 +319,7 @@
 			}
 			else if (getURLParameter('page') == 'view') {
 				$('hr').hide();
+				$('#listTable').hide();
 			}
 
 
@@ -508,6 +510,7 @@
 				success: function(msg) {
 					$("#loaderIcon").hide();
 					$('hr').show();
+					$('#listTable').show();
 
 					$('#listTable').append(msg);
 
