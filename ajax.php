@@ -48,6 +48,43 @@ if ($user_id) {
 
 		file_put_contents($cachefile, $course_table);		//cache response html
 	}
+	elseif (isset($_REQUEST['course_name'])) {	//search course by name
+		$course_name_utf8 = $_REQUEST['course_name'];
+		$course_name_big5 = iconv("UTF-8", "Big5", $_REQUEST['course_name']);
+		$course_name_escape = rawurlencode($course_name_big5);
+
+		$url = "http://nol.ntu.edu.tw/nol/coursesearch/search_result.php";
+		if (isset($_REQUEST['startrec'])) {
+			$startrec = (int)$_REQUEST['startrec'];
+			$field_string = "?cstype=1&current_sem=100-2&csname=$course_name_escape&startrec=$startrec";
+		}
+		else {
+			$field_string = "?cstype=1&current_sem=100-2&csname=$course_name_escape";
+		}
+		
+		//open connection
+		$session = curl_init();
+
+		curl_setopt($session, CURLOPT_URL, $url . $field_string);
+
+		//Don't return HTTP headers. Do return the contents of the call
+		curl_setopt($session, CURLOPT_HEADER, false);
+		curl_setopt($session, CURLOPT_FOLLOWLOCATION, false); 
+		curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+
+		//execute post
+		$response = curl_exec($session);
+		$response_utf8 = iconv("Big5", "UTF-8", $response);
+
+		$pos_of_course_name = stripos($response_utf8, 'course_id');
+		$course_table_start = strripos($response_utf8, '<table', $pos_of_course_name - strlen($response));
+		$course_table_end = stripos($response_utf8, '</table>', $pos_of_course_name);
+		$course_table = substr($response_utf8, $course_table_start, $course_table_end - $course_table_start + 8);
+
+		echo $course_table;
+		//close connection
+		curl_close($session);
+	}
 	elseif (isset($_REQUEST['list']) && isset($_REQUEST['added'])) {
 		require_once('mysql_config.php');
 

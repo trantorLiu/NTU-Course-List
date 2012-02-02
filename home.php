@@ -4,9 +4,9 @@
 			<tr id="searchBar">
 				<td>
 					<div class="buttons">
-					<form id="searchForm" onsubmit="searchCourseById(); return false;">
+					<form id="searchForm" onsubmit="searchCourse(); return false;">
 					<span id="searchField">
-						<input class="defaultText" title="台大課程流水號" type="text" size="23" name="search" id="search" />
+						<input class="defaultText" title="台大課程名稱或流水號" type="text" size="23" name="search" id="search" />
 					</span>
 					<span id="searchButtonTd">
 						<button id="searchButton" class="regular" name="submit" type="submit"><img id="searchingIcon" src="images/ajax-loader.gif" /><img id="searchIcon"alt="" src="images/Search16.png" />&nbsp;Search</button>

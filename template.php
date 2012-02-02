@@ -1,7 +1,15 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml">
 <head>
+	<meta name="description" content="給台大學生的選課分享app，快來看看你的同學修了哪些課吧！" /> 
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta property="og:title" content="我的選課表" />
+	<meta property="og:description" content="給台大學生的選課分享app，快來看看你的同學修了哪些課吧！" />
+	<meta property="og:type" content="school" />
+	<meta property="og:url" content="http://apps.facebook.com/ntu_course_list/" />
+	<meta property="og:image" content="http://www.courselist.tw/images/screenshot50.png" />
+	<meta property="og:site_name" content="我的選課表" />
+	<meta property="fb:app_id" content="330336366986992" />	
 	<title>我的台大選課表</title>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 	<script type="text/javascript" src="jquery.url.js"></script>
@@ -50,6 +58,12 @@
 		#menu a {
      	 	 text-decoration: none;
 		}
+		
+		div.fb-like {
+			position: relative;
+			left: 60px;
+		}
+		
 		table.main {
      	 	text-align: center;
      	 	width: 732px;
@@ -71,6 +85,13 @@
 		input.defaultTextActive {
      	 	color: #A1A1A1;
      	 	font-style: italic;
+		}
+		#coursePagination {
+			text-align: right;
+		}
+		#coursePagination td{
+			padding-right: 30px;
+			padding-top: 16px;
 		}
 
 		#searchResultTable, #addedTable {
@@ -173,6 +194,10 @@
 		p.guide {
 			color: gray;
 			font-size: 14px;
+		}
+		#declare {
+			font-size: 11px;
+			text-decoration: none;
 		}
 
 
@@ -279,6 +304,9 @@
 
 		var isDirty = false;
 		var msg = '尚未儲存變更，確定離開？';
+		var startrec = 0;	//indicate the start enrty while searching course by name
+		var lastSearchByName = false;	//true is last search is searched by name
+		var itemNumPerPage = 7;
 
 		$(document).ready(function () {
 			$("#searchingIcon").hide();
@@ -420,12 +448,18 @@
 
 			isDirty = true;
 		}
-
-		function searchCourseById() {
+		function searchCourse() {
 			var query = $('#search').attr('value').trim();
 			if (query % 1 != 0) {	//not an integer
-				return;
+				searchCourseByName(query);
 			}
+			else {
+				searchCourseById(query);
+			}
+
+		}
+
+		function searchCourseById(query) {
 			$.ajax({
 				type: "POST",
 				url: "ajax.php",
@@ -437,6 +471,10 @@
 					$("#searchingIcon").show();
 				},
 				success: function(msg) {
+					if (lastSearchByName) {
+						$('#searchResultTable').find('tr:gt(0)').remove();
+					}
+					lastSearchByName = false;
 					$("#searchIcon").show();
 					$("#searchingIcon").hide();
 
@@ -462,6 +500,96 @@
 					);
 				},
 				error: function(msg) {
+					if (lastSearchByName) {
+						$('#searchResultTable').find('tr:gt(0)').remove();
+					}
+					lastSearchByName = false;
+					$("#searchIcon").show();
+					$("#searchingIcon").hide();
+				}
+			});
+		}
+		function searchCourseByName(query, entry) {
+			if (!entry) {
+				var entry = 0;
+			}
+			startrec = entry;
+			$.ajax({
+				type: "GET",
+				url: "ajax.php",
+				data: "course_name=" + query + "&startrec=" + entry,
+				datatype: "text",
+				contentType: "application/x-www-form-urlencoded;charset=utf-8",
+				beforeSend: function () {
+					$("#searchIcon").hide();
+					$("#searchingIcon").show();
+				},
+				success: function(msg) {
+					if (lastSearchByName) {
+						$('#searchResultTable').find('tr:gt(0)').remove();
+					}
+					lastSearchByName = true;
+					$("#searchIcon").show();
+					$("#searchingIcon").hide();
+
+					$('#searchResultTable').show();
+					result_page = $(msg);
+					result_rows = $('tr:contains(' + query + '):lt(' + itemNumPerPage + ')', result_page);
+					if (result_rows.length == 0) {		//course id not found
+						$('#searchResultTable').append('<tr class="noResultTr"><td colspan="5">查無結果</td></tr>');
+						return;
+					}
+					$.each(result_rows, function (index, row) {
+						cells = $(row).children();
+
+						$('tr.noResultTr').remove();
+
+						$('#searchResultTable').append(
+							'<tr id="searchResult_' + cells.eq(0).text().trim() + '">'
+							+ '<td class="courseNameTd">' + cells.eq(4).text().trim() + '</td>'		//course name
+							+ '<td class="timeClassroomTd">' + cells.eq(11).text().trim() + '</td>'	//time & classroom
+							+ '<td class="professorTd">' + cells.eq(9).text().trim() + '</td>'		//professor
+							+ '<td class="idTd">' + cells.eq(0).text().trim() + '</td>'		//id
+							+ '<td class="buttonTd buttons"><button class="addCourseButton positive" onclick=\'addCourse("' + cells.eq(0).text().trim() + '")\'><img src="images/File_add16.png" alt="" />加入</button></td>'
+							+ '</tr>'
+						);
+					});
+					if (result_rows.length == itemNumPerPage) {	//there are more pages
+						if (startrec > 0) {
+							var preStartrec = (startrec - itemNumPerPage > 0) ? (startrec - itemNumPerPage) : 0;
+							var nextStartrec = startrec + itemNumPerPage;
+							$('#searchResultTable').append(
+								'<tr id="coursePagination">'
+								+ '<td colspan="5"><a href="" onclick="searchCourseByName(\'' + query + '\',' + preStartrec + '); return false;">上一頁</a>'
+								+ ' | '
+								+ '<a href="" onclick="searchCourseByName(\'' + query + '\',' + nextStartrec + '); return false;">下一頁</a></td>'
+								+ '</tr>'
+							);
+						}
+						else {
+							var nextStartrec = startrec + itemNumPerPage;
+							$('#searchResultTable').append(
+								'<tr id="coursePagination">'
+								+ '<td colspan="5"><a href="" onclick="searchCourseByName(\'' + query + '\',' + nextStartrec + '); return false;">下一頁</a></td>'
+								+ '</tr>'
+							);
+						}
+					}
+					else if (startrec > 0) {	//there are previous pages
+						var preStartrec = (startrec - itemNumPerPage > 0) ? (startrec - itemNumPerPage) : 0;
+						$('#searchResultTable').append(
+							'<tr id="coursePagination">'
+							+ '<td colspan="5"><a href="" onclick="searchCourseByName(\'' + query + '\',' + preStartrec + '); return false;">上一頁</a></td>'
+							+ '</tr>'
+						);
+					}
+						
+				},
+				error: function(msg) {
+					if (lastSearchByName) {
+						$('#searchResultTable').find('tr:gt(0)').remove();
+					}
+					lastSearchByName = true;
 					$("#searchIcon").show();
 					$("#searchingIcon").hide();
 				}
@@ -597,7 +725,14 @@
 </head>
 <body>
 	<div id="fb-root"></div>
-	<script type="text/javascript" src="http://connect.facebook.net/en_US/all.js"></script>
+	<script>(function(d, s, id) {
+		var js, fjs = d.getElementsByTagName(s)[0];
+		if (d.getElementById(id)) return;
+		js = d.createElement(s); js.id = id;
+		js.src = "//connect.facebook.net/zh_TW/all.js#xfbml=1&appId=330336366986992";
+		fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));</script>
+	<script type="text/javascript" src="http://connect.facebook.net/zh_TW/all.js"></script>
 
 	<script type="text/javascript">
 	FB.init({
@@ -622,7 +757,9 @@
 		</td>
 	</tr>
 	<tr>
-		<td><br /></td>
+		<td>
+			<div class="fb-like" data-href="http://apps.facebook.com/ntu_course_list/" data-send="true" data-width="450" data-show-faces="true"></div>
+		</td>
 	</tr>
 
 	<?php include_once($page . '.php'); ?>
@@ -632,6 +769,11 @@
 			<a href="" onclick="publishStream(); return false;">分享至塗鴉牆</a>
 			|
 			<a href="" onclick="newInvite(); return false;">邀請朋友</a>
+		</td>
+	</tr>
+	<tr id="footer">
+		<td>
+			<p id="declare">Designed by Trantor Liu | Licensed under GNU <a href="http://www.gnu.org/licenses/agpl.txt" target="_blank">AGPL</a> | Fork me on <a href="https://github.com/trantorLiu/NTU-Course-List" target="_blank">GitHub</a></p>
 		</td>
 	</tr>
 	</table>
