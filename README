@@ -1,0 +1,11 @@
+To use this app,
+first you need to config both fbmain.php and mysql_config.php,
+then import courselist.sql to your database.
+
+If there's any problem or you want to add new features on the origin app,
+feel free to connent me.
+
+origin app url: http://apps.facebook.com/ntu_course_list
+origin app base url: http://www.courselist.tw
+designer: Trantor Liu
+email: trantor.liu@gmail.com
