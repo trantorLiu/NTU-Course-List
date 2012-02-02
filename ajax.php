@@ -118,8 +118,14 @@ if ($user_id) {
 	elseif (isset($_REQUEST['get_name_id'])) {	//return username whose id is get_name_id
 		echo get_username((int)$_REQUEST['get_name_id']);
 	}
-
-
+	elseif (isset($_REQUEST['get_last_save_time_id'])) {
+		include_once('mysql_config.php');
+		$user_id = (int)$_REQUEST['get_last_save_time_id'];
+		$query = "SELECT time FROM course_list WHERE user_id = $user_id ORDER BY id DESC LIMIT 1";
+		$result = mysql_query($query) or die ('Query course list error: ' . mysql_error());
+		$row = mysql_fetch_assoc($result);
+		echo $row['time'];
+	}	
 
 }
 

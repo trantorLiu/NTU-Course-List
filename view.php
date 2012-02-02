@@ -23,7 +23,7 @@ ob_start();	 //start the output buffer
 			$query = "SELECT id FROM course_list WHERE user_id = {$friend->id} LIMIT 1";
 			$result = mysql_query($query);
 			if (mysql_num_rows($result) == 1) {
-				echo '<img class="friend" onclick="showList(' . $friend->id . ')" src="http://graph.facebook.com/' . $friend->id . '/picture" title="' . $friend->name . '" />&nbsp;&nbsp;';
+				echo '<img class="friend" id="friend_' . $friend->id . '" onclick="showList(' . $friend->id . ')" src="http://graph.facebook.com/' . $friend->id . '/picture" title="' . $friend->name . '" />&nbsp;&nbsp;';
 			}
 		}
 		$time_after = microtime();

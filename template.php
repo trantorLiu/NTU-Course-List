@@ -199,6 +199,10 @@
 			font-size: 11px;
 			text-decoration: none;
 		}
+		#friendInfo td {
+			text-align: left;
+			padding-left: 6px;
+		}
 
 
 		.buttons a, .buttons button{
@@ -307,6 +311,7 @@
 		var startrec = 0;	//indicate the start enrty while searching course by name
 		var lastSearchByName = false;	//true is last search is searched by name
 		var itemNumPerPage = 7;
+		var loadingFriendCourseList = false;
 
 		$(document).ready(function () {
 			$("#searchingIcon").hide();
@@ -624,6 +629,9 @@
 		}
 
 		function showList(user_id) {
+			if (loadingFriendCourseList) {
+				return;
+			}
 			$.ajax({
 				type: "GET",
 				url: "ajax.php",
@@ -634,6 +642,7 @@
 
 					$('#listTable').children().remove();
 					$('#friendInfo').children().remove();
+					loadingFriendCourseList = true;
 				},
 				success: function(msg) {
 					$("#loaderIcon").hide();
@@ -642,15 +651,33 @@
 
 					$('#listTable').append(msg);
 
-					var username = getUsername(user_id);
+					var username = $('#friend_' + user_id).attr('title');
+					console.log(username);
 					$('#friendInfo').append(
 						'<tr><td><img src="http://graph.facebook.com/' + user_id + '/picture" />'
-						+ '</td><td>' + username + '</td></tr>'
+						+ '</td><td><span id="friendName">' + username + '</span><br /><span id="lastSaveTime"></span></td></tr>'
 					);
+					appendLastSaveTime(user_id);
+					loadingFriendCourseList = false;
 
 				},
 				error: function(msg) {
 					$("#loaderIcon").hide();
+					loadingFriendCourseList = false;
+				}
+			});
+		}
+		function appendLastSaveTime(user_id) {
+			$.ajax({
+				type: "GET",
+				url: "ajax.php",
+				data: "get_last_save_time_id=" + user_id,
+				datatype: "text",
+				success: function(msg) {
+					var lastDate = '編輯於 ' + msg.split(' ')[0];
+					$('#lastSaveTime').append(lastDate);
+				},
+				error: function(msg) {
 				}
 			});
 		}
