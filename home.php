@@ -210,7 +210,7 @@
 	</tr>
 	<tr>
 		<td class="buttons">
-			<p class="guide">若包含週六或晨間、夜間課程，選課表將自動擴充。</p>
+			<p class="guide">若包含晨間、夜間或週六課程，選課表將自動擴充。</p>
 			<button class="negative" id="submitList" onclick="submitList()" style="width: 160px; border: 1px solid black;">
 				<img src="images/Save16.png" alt="" id="saveIcon"/><img src="images/ajax-loader.gif" alt="" id="savingIcon" /><img src="images/Accept16.png" alt="" id="saveDoneIcon" />儲存</button>
 		</td>
